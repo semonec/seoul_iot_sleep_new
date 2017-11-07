@@ -62,3 +62,10 @@ void read_potentiometer() {
     potentiometer_res->set_value((uint8_t*)val, strlen(val));
   }
 }
+
+void register_shield_sensors(SimpleM2MClient* mbedClient) {
+    potentiometer_res = mbedClient->add_cloud_resource(3200, 0, 5501, "potentiometer_resource", M2MResourceInstance::FLOAT, M2MBase::GET_ALLOWED, 0, true, NULL);
+    message_res = mbedClient->add_cloud_resource(3201, 0, 5853, "message_resource", M2MResourceInstance::STRING, M2MBase::GET_PUT_ALLOWED, "Hello world!", false, (void*)message_updated_callback);
+    display_res = mbedClient->add_cloud_resource(3201, 0, 5850, "display_resource", M2MResourceInstance::STRING,M2MBase::POST_ALLOWED, "", false, (void*)display_message_callback);
+    led_res = mbedClient->add_cloud_resource(3202, 0, 5853, "led_resource", M2MResourceInstance::INTEGER,M2MBase::GET_PUT_ALLOWED, 0, false, (void*)set_blink_led);    
+}

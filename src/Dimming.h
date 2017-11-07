@@ -6,7 +6,13 @@
 #define LED_COLOR_G 0x00ff00
 #define LED_COLOR_B 0x0000ff
 
+void dimmingOn();
+void dimmingOff();
 
+enum EventList {
+  ButtonOff,
+  ButtonOn
+};
 
 class Dimming {
 public:
@@ -27,62 +33,14 @@ public:
   }
 
   // level should be 0.0 to 1.0
-  void set_px(double level) {
-    int adjusted_level = (int)(255 * level);
-    int leveled_color_r = adjusted_level * 65536;
-    int leveled_color_g = adjusted_level * 256;
-    int leveled_color_b = adjusted_level * 1;
-    int color = leveled_color_r + leveled_color_g + leveled_color_b;  
-    for (int i = 0; i < m_led_nums; i++) {
-      m_px->Set(i, color);
-    } 
-  }
-
-  void set_light() {
-    for (int z=m_led_nums; z >= 0 ; z--) {
-      m_ws->write_offsets(m_px->getBuf(),z,z,z);
-    }
-  }
-
-  void on() {
-    if (m_is_dim_on)
-      return;
-    m_is_dim_on = true;
-    for(double i = 0.0; i <= 1.0; i+= m_dimming_level) {
-      set_px(i);
-      set_light();
-      wait(m_dimming_step_time);
-    }
-    set_px(1);
-    set_light();
-  }
-
-  void off() {
-    if (!m_is_dim_on)
-      return;
-    m_is_dim_on = false;      
-    for(double i = 1.0; i >= 0.0; i-= m_dimming_level) {
-      set_px(i);
-      set_light();
-      wait(m_dimming_step_time);
-    }
-    set_px(0);
-    set_light();
-  }
-
-  void set_led_numbers(int num) {
-    m_led_nums = num;
-  }
-  void set_dimming_level(double level) {
-    m_dimming_level = level;
-  }
-  void set_dimming_step_time(double sec) {
-    m_dimming_step_time = sec;
-  }
-
-  bool is_light_on() {
-    return m_is_dim_on;
-  }
+  void set_px(double level);
+  void set_light();
+  void on();
+  void off();
+  void set_led_numbers(int num);
+  void set_dimming_level(double level);
+  void set_dimming_step_time(double sec);
+  bool is_light_on();
 private:
   WS2812* m_ws;
   PixelArray* m_px;

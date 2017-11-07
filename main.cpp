@@ -21,36 +21,33 @@
 #include "simplem2mclient.h"
 //#include "base.h"
 #include "Dimming.h"
+#include "temp_humi.h"
 
 EventQueue queue;
 Thread eventThread;
 
 // for dimming leds
-// D2 = button's pin, D4 = neo pixel's pin
+// D2 = button's pin, D9 = neo pixel's pin
 InterruptIn button(D2);
-DHT sensor(D4, DHT11);
 
-// Main Event handler
-// All event should be handled in here
+// Dispatcher
+// directly updated value will be handled here (by user interaction)
 void dispatcher(int event_type) {
     printf("Event Dispatcher: eventType: %d\n", event_type);
-  
     switch(event_type) {
       case ButtonOn:
-        dim.on();  
+        dimmingOn();
       break;
       case ButtonOff:
-        dim.off();
+        dimmingOff();
       break;
     }
 }
 
 int main()
 {
-    printf("Simple M2M client example runs\n");
     // SimpleClient is used for registering and unregistering resources to a server.
     SimpleM2MClient mbedClient;
-
     if (!mbedClient.init()) {
         printf("Initialization failed, exiting application!\n");
         return 1;
@@ -58,21 +55,44 @@ int main()
     // Event queue will run from sub thread
     eventThread.start(callback(&queue, &EventQueue::dispatch_forever));
 
+    ////////////////////////////////////////////////////////////////////////////
+    // NeoPixel
     // controlling button event
     // fail event menas 1 -> 0 chnages, rise means 0 -> 1 changes
     button.fall(queue.event(dispatcher, ButtonOff));
     button.rise(queue.event(dispatcher, ButtonOn));
 
-    // TODO: blocked should be re-implemented
-    // potentiometer_res = mbedClient.add_cloud_resource(3200, 0, 5501, "potentiometer_resource", M2MResourceInstance::FLOAT, M2MBase::GET_ALLOWED, 0, true, NULL);
-    // message_res = mbedClient.add_cloud_resource(3201, 0, 5853, "message_resource", M2MResourceInstance::STRING, M2MBase::GET_PUT_ALLOWED, "Hello world!", false, (void*)message_updated_callback);
-    // display_res = mbedClient.add_cloud_resource(3201, 0, 5850, "display_resource", M2MResourceInstance::STRING,M2MBase::POST_ALLOWED, "", false, (void*)display_message_callback);
-    // led_res = mbedClient.add_cloud_resource(3202, 0, 5853, "led_resource", M2MResourceInstance::INTEGER,M2MBase::GET_PUT_ALLOWED, 0, false, (void*)set_blink_led);
+
+    ////////////////////////////////////////////////////////////////////////////
+    // Registering sensor into mbed cloud
+    // blocked shield sensor registering 
+    //register_shield_sensors(&mbedClient);
+    register_temp_humi_cloud_resource(&mbedClient);
+    /*
+     * register sensor to mbed cloud
+     */
+    // HERE
+
+
+
+
 
     mbedClient.start_client();
-    // queue.call_every(100, read_potentiometer);
+    ////////////////////////////////////////////////////////////////////////////
+    // Update sensor's readed data into mbed cloud
+    // shield potentionmeter reading 
+    // queue.call_every(100, read_potentiometer);    
+    // temp & humi data update to mbed cloud
+    queue.call_every(500, read_temp_humi);
+    /*
+     * update sensor's readed data to mbed cloud
+     */
+    // HERE
+
+
+
     while(mbedClient.is_register_called()){
-        wait_ms(100);
+        wait_ms(2000);
         queue.dispatch(0);
     }
 }
