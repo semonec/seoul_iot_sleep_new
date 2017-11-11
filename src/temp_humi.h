@@ -12,7 +12,7 @@ void read_temp() {
   error = dht.readData();
   if (0 == error) {
       c = dht.ReadTemperature(CELCIUS);
-      printf("Celcius is %4.2f\n", c);
+      //printf("Celcius is %4.2f\n", c);
       char val[13];
       sprintf(val, "%.2f", c);
       temp_res->set_value((uint8_t*)val, strlen(val));
@@ -27,7 +27,7 @@ void read_humi() {
   error = dht.readData();
   if (0 == error) {
       h   = dht.ReadHumidity();
-      printf("Humidity is %4.2f\n", h);
+      //printf("Humidity is %4.2f\n", h);
       char val[13];
       sprintf(val, "%.2f", h);
       humi_res->set_value((uint8_t*)val, strlen(val));
@@ -50,7 +50,7 @@ void read_temp_humi() {
 
         // read and update temperature
         c = dht.ReadTemperature(CELCIUS);
-        printf("Humidity is %4.2f\t, Celcius is %4.2f\n", h, c);
+        //printf("Humidity is %4.2f\t, Celcius is %4.2f\n", h, c);
         char val_temp[13];
         sprintf(val_temp, "%.2f", c);
         temp_res->set_value((uint8_t*)val_temp, strlen(val_temp));

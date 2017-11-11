@@ -32,12 +32,12 @@ void Dimming::on() {
   if (m_is_dim_on)
     return;
   m_is_dim_on = true;
-  for(double i = 0.0; i <= 1.0; i+= m_dimming_level) {
+  for(double i = 0.0; i <= MAX_BRIGHGNESS; i+= m_dimming_level) {
     set_px(i);
     set_light();
     wait(m_dimming_step_time);
   }
-  set_px(1);
+  set_px(MAX_BRIGHGNESS);
   set_light();
 }
 
@@ -45,7 +45,7 @@ void Dimming::off() {
   if (!m_is_dim_on)
     return;
   m_is_dim_on = false;      
-  for(double i = 1.0; i >= 0.0; i-= m_dimming_level) {
+  for(double i = MAX_BRIGHGNESS; i >= 0.0; i-= m_dimming_level) {
     set_px(i);
     set_light();
     wait(m_dimming_step_time);

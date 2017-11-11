@@ -28,15 +28,15 @@
     "config": {
         "network-interface":{
             "help": "Options are ETHERNET, WIFI_ESP8266, WIFI_ODIN",
-            "value": "WIFI_ODIN"
+            "value": "ETHERNET"
         },
         "wifi-ssid": {
             "help": "WiFi SSID",
-            "value": "\"eawifi\""
+            "value": "\"Seoul\\ IOT_7(2.4G)\""
         },
         "wifi-password": {
             "help": "WiFi Password",
-            "value": "\"play4free\""
+            "value": "\"12345678\""
         },
         "wifi-tx": {
             "help": "TX pin for serial connection to external device",

@@ -6,12 +6,16 @@
 #define LED_COLOR_G 0x00ff00
 #define LED_COLOR_B 0x0000ff
 
+#define MAX_BRIGHGNESS 0.3
+
 void dimmingOn();
 void dimmingOff();
 
 enum EventList {
   ButtonOff,
-  ButtonOn
+  ButtonOn,
+  Crying,
+  NoCrying
 };
 
 class Dimming {

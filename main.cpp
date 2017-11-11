@@ -13,22 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#if defined(TARGET_K64F) 
-#define BUTTON SW2
-#else 
-#define BUTTON SW0
-#endif 
+
 #include "simplem2mclient.h"
 //#include "base.h"
 #include "Dimming.h"
 #include "temp_humi.h"
+#include "mbed.h"
+#include "preassure.h"
+#include "sound.h"
 
 EventQueue queue;
 Thread eventThread;
 
 // for dimming leds
 // D2 = button's pin, D9 = neo pixel's pin
-InterruptIn button(D2);
+InterruptIn d2(A0);
+InterruptIn d3(D3);
 
 // Dispatcher
 // directly updated value will be handled here (by user interaction)
@@ -41,8 +41,16 @@ void dispatcher(int event_type) {
       case ButtonOff:
         dimmingOff();
       break;
+      case Crying:
+        printf("crying\n");
+        break;
     }
 }
+
+// void update_dimming() {
+//     int value = button.read();
+//     printf("button value:%d\n", value);
+// }
 
 int main()
 {
@@ -54,20 +62,21 @@ int main()
     }
     // Event queue will run from sub thread
     eventThread.start(callback(&queue, &EventQueue::dispatch_forever));
-
+    d3.mode(PullUp);
     ////////////////////////////////////////////////////////////////////////////
     // NeoPixel
     // controlling button event
-    // fail event menas 1 -> 0 chnages, rise means 0 -> 1 changes
-    button.fall(queue.event(dispatcher, ButtonOff));
-    button.rise(queue.event(dispatcher, ButtonOn));
-
-
+    // fall event menas 1 -> 0 chnages, rise means 0 -> 1 changes
+    // button.mode(PullUp);
+    d2.fall(queue.event(dispatcher, ButtonOn));
+    d2.rise(queue.event(dispatcher, ButtonOff));
+    d3.rise(queue.event(dispatcher, Crying));
     ////////////////////////////////////////////////////////////////////////////
     // Registering sensor into mbed cloud
     // blocked shield sensor registering 
     //register_shield_sensors(&mbedClient);
     register_temp_humi_cloud_resource(&mbedClient);
+    register_pressure_cloud_resource(&mbedClient);
     /*
      * register sensor to mbed cloud
      */
@@ -83,16 +92,18 @@ int main()
     // shield potentionmeter reading 
     // queue.call_every(100, read_potentiometer);    
     // temp & humi data update to mbed cloud
-    queue.call_every(500, read_temp_humi);
+    queue.call_every(5000, read_temp_humi);
+    queue.call_every(500, read_sound);
+    queue.call_every(500, read_pressure);
+
+    //queue.call_every(500, update_dimming);
     /*
      * update sensor's readed data to mbed cloud
      */
     // HERE
-
-
-
+    //queue.call_every(500, read_ultra);
     while(mbedClient.is_register_called()){
         wait_ms(2000);
-        queue.dispatch(0);
+        //queue.dispatch(0);
     }
 }
